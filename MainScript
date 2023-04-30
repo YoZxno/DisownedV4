@@ -1,0 +1,52 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/Ocerium_Project/main/Library.lua"))()
+Window = Library.Main("DisownedV4","RightShift") -- change "LeftAlt" to key that you want will hide gui
+
+--//tab
+local Tab = Window.NewTab("Combat")
+
+
+--//section
+local Section = Tab.NewSection("Combat")
+
+ local Flamework = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@flamework"].core.out).Flamework
+		repeat task.wait() until Flamework.isInitialized
+        local KnitClient = debug.getupvalue(require(lplr.PlayerScripts.TS.knit).setup, 6)
+        local Client = require(game:GetService("ReplicatedStorage").TS.remotes).default.Client
+        if game.PlaceId == 6872265039 then
+            local bedwars = {
+                SprintController = KnitClient.Controllers.SprintController,
+            }
+            local sprintconnection
+            local oldsprint
+            local EnableToggle = Combat.NewToggle("Sprint", "Automatically sprints for you.", function(callback)
+                if callback then
+                    oldsprint = bedwars.SprintController.stopSprinting
+                    bedwars.SprintController.stopSprinting = function(...)
+                        local res = oldsprint(...)
+                        bedwars.SprintController:startSprinting()
+                        return res
+                    end
+                    sprintconnection = lplr.CharacterAdded:Connect(function(char)
+                        char:WaitForChild("Humanoid", 9e9)
+                        task.wait(0.5)
+                        bedwars.SprintController:stopSprinting()
+                    end)
+                    task.spawn(function()
+                        bedwars.SprintController:startSprinting()
+                    end)
+                else
+                    bedwars.SprintController.stopSprinting = oldsprint
+                    bedwars.SprintController:stopSprinting()
+                    if sprintconnection then sprintconnection:Disconnect() end
+                end
+            end)
+        else
+            local function getremote(tab)
+                for i,v in pairs(tab) do
+                    if v == "Client" then
+                        return tab[i + 1]
+                    end
+                end
+                return ""
+            end
+end
